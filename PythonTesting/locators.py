@@ -18,5 +18,10 @@ driver.find_element(By.ID, "exampleCheck1").click()
 driver.find_element(By.CSS_SELECTOR, "input[name='name']").send_keys("Rahul")
 driver.find_element(By.CSS_SELECTOR, "#inlineRadio1").click()
 
+#Static Dropdown
+dropdown = Select(driver.find_element(By.ID, "exampleFormControlSelect1"))
+dropdown.select_by_visible_text("Female")
+dropdown.select_by_index(1)
+# dropdown.select_by_value()
 
 time.sleep(5)
