@@ -24,4 +24,13 @@ dropdown.select_by_visible_text("Female")
 dropdown.select_by_index(1)
 # dropdown.select_by_value()
 
+
+driver.find_element(By.XPATH,"//input[@type='submit']").click()
+message = driver.find_element(By.CLASS_NAME, "alert-success").text
+print(message)
+assert  "Success" in message
+
+driver.find_element(By.XPATH, "(//input[@type='text'])[3]").send_keys("helloagain")
+driver.find_element(By.XPATH, "(//input[@type='text'])[3]").clear()
+
 time.sleep(5)
