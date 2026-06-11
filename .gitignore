@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 # AI Configuration
 .continue/config.json
+.vscode/
