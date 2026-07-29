@@ -35,7 +35,7 @@ jobs:
 
           prompt = f'다음 문서에서 가장 최근에 추가된 퀴즈만 추출해서 GitHub 이슈 제목과 본문으로 만들어줘. Output format: TITLE:::BODY\n\n{content}'
           response = client.models.generate_content(
-              model='gemini-2.5-flash',
+              model='gemini-1.5-flash',
               contents=prompt
           )
           
