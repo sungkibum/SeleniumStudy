@@ -76,7 +76,7 @@ def handle_python_changes(changed_files):
     """
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash", contents=prompt
+        model="gemini-2.5-flash", contents=prompt
     )
 
     quiz_content = response.text
@@ -149,7 +149,7 @@ def handle_markdown_changes(changed_files):
     """
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash", contents=grading_prompt
+        model="gemini-2.5-flash", contents=grading_prompt
     )
 
     # 응답에서 JSON 파싱
