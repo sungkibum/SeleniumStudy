@@ -24,7 +24,7 @@ headers = {
 
 
 # Gemini API 호출 헬퍼 함수 (SDK버전 간섭 없는 직관적 REST API 방식)
-def call_gemini_api(prompt: str, model: str = "gemini-2.5-flash-lite") -> str:
+def call_gemini_api(prompt: str, model: str = "gemini-2.5-flash") -> str:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [{

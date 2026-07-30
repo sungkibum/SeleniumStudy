@@ -4,3 +4,6 @@
 
 def test_firstProgram():
   print("Hello")
+
+def test_SecondGreetCreditCard():
+  print("Good Morning")
