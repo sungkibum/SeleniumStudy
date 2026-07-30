@@ -23,8 +23,8 @@ headers = {
 }
 
 
-# Gemini API 호출 헬퍼 함수 (SDK 패키지 버전 문제 우회 및 최신 모델 적용)
-def call_gemini_api(prompt: str, model: str = "gemini-2.5-flash") -> str:
+# Gemini API 호출 헬퍼 함수 (SDK버전 간섭 없는 직관적 REST API 방식)
+def call_gemini_api(prompt: str, model: str = "gemini-2.0-flash") -> str:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [{
@@ -33,10 +33,6 @@ def call_gemini_api(prompt: str, model: str = "gemini-2.5-flash") -> str:
     }
     res = requests.post(url, json=payload)
     if res.status_code != 200:
-        # gemini-2.5-flash 실패 시 gemini-2.0-flash로 재시도
-        if model == "gemini-2.5-flash":
-            print("⚠️ gemini-2.5-flash 호출 실패, gemini-2.0-flash로 재시도합니다...")
-            return call_gemini_api(prompt, model="gemini-2.0-flash")
         raise Exception(f"Gemini API 호출 실패 ({res.status_code}): {res.text}")
     
     data = res.json()
