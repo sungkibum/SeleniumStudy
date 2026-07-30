@@ -62,7 +62,7 @@ def handle_python_changes(changed_files):
                 with open(py_file, "r", encoding="utf-8") as f:
                     log_context += f"\n--- {py_file} ---\n" + f.read()
 
-    # Gemini 2.0 Flash에 퀴즈 생성 요청
+    # Gemini 1.5 Flash에 퀴즈 생성 요청
     prompt = f"""
     당신은 친절한 프로그래밍 튜터입니다. 
     아래 작성된 학습 기록 및 코드를 바탕으로 개발자의 이해도를 점검할 수 있는 퀴즈 1~2개를 작성해주세요.
@@ -76,7 +76,7 @@ def handle_python_changes(changed_files):
     """
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash", contents=prompt
+        model="gemini-1.5-flash", contents=prompt
     )
 
     quiz_content = response.text
@@ -130,7 +130,7 @@ def handle_markdown_changes(changed_files):
             with open(md_file, "r", encoding="utf-8") as f:
                 user_answer += f"\n--- {md_file} ---\n" + f.read()
 
-    # Gemini 2.0 Flash에 채점 요청 (JSON 출력 강제)
+    # Gemini 1.5 Flash에 채점 요청 (JSON 출력 강제)
     grading_prompt = f"""
     당신은 엄격하지만 친절한 프로그래밍 채점관입니다.
     
@@ -149,7 +149,7 @@ def handle_markdown_changes(changed_files):
     """
 
     response = client.models.generate_content(
-        model="gemini-0-flash", contents=grading_prompt
+        model="gemini-1.5-flash", contents=grading_prompt
     )
 
     # 응답에서 JSON 파싱
