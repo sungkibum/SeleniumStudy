@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import subprocess
 import sys
 import time
@@ -9,14 +8,14 @@ import requests
 # ==========================================
 # 1. 환경 변수 및 설정 로드
 # ==========================================
-api_key = os.environ.get("GROQ_API_KEY") # Gemini 사용 시 GEMINI_API_KEY로 변경
+api_key = os.environ.get("GEMINI_API_KEY")
 github_token = os.environ.get("GITHUB_TOKEN")
 repo = os.environ.get("GITHUB_REPOSITORY")
 event_name = os.environ.get("GITHUB_EVENT_NAME")
 event_path = os.environ.get("GITHUB_EVENT_PATH")
 
 if not api_key or not github_token or not repo:
-    print("❌ 오류: 필수 환경 변수(GROQ_API_KEY/GEMINI_API_KEY, GITHUB_TOKEN, GITHUB_REPOSITORY)가 없습니다.")
+    print("❌ 오류: 필수 환경 변수(GEMINI_API_KEY, GITHUB_TOKEN, GITHUB_REPOSITORY)가 없습니다.")
     sys.exit(1)
 
 headers = {
@@ -26,30 +25,30 @@ headers = {
 
 
 # ==========================================
-# 2. LLM API 호출 함수 (Groq 기준, Gemini 변환 가능)
+# 2. Gemini API 호출 함수 (Gemini 1.5 Flash 무료 모델)
 # ==========================================
-def call_llm_api(prompt: str) -> str:
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    req_headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
+def call_gemini_api(prompt: str) -> str:
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    req_headers = {"Content-Type": "application/json"}
     payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.7
+        "contents": [{"parts": [{"text": prompt}]}]
     }
     
     res = requests.post(url, headers=req_headers, json=payload)
+    
     if res.status_code == 429:
         print("⚠️ Rate Limit 발생. 10초 대기 후 재시도...")
         time.sleep(10)
         res = requests.post(url, headers=req_headers, json=payload)
 
     if res.status_code != 200:
-        raise Exception(f"LLM API 호출 실패 ({res.status_code}): {res.text}")
+        raise Exception(f"Gemini API 호출 실패 ({res.status_code}): {res.text}")
     
-    return res.json()["choices"][0]["message"]["content"]
+    data = res.json()
+    try:
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except (KeyError, IndexError):
+        raise Exception(f"Gemini 응답 파싱 실패: {data}")
 
 
 # ==========================================
@@ -71,7 +70,6 @@ def handle_push_event():
         print("ℹ️ 변경된 .py 파일이 없습니다. 종료합니다.")
         return
 
-    # 변경된 .py 파일 내용 읽기
     code_context = ""
     for py_file in changed_files:
         if os.path.exists(py_file):
@@ -80,7 +78,7 @@ def handle_push_event():
 
     prompt = f"""
     당신은 친절하고 전문적인 프로그래밍 튜터입니다.
-    개발자가 최신 작성/수정한 아래 파이썬 코드를 분석하여 이해도를 점검할 수 있는 퀴즈 1~2개를 작성해주세요.
+    개발자가 작성/수정한 아래 파이썬 코드를 분석하여 이해도를 점검할 수 있는 퀴즈 1~2개를 작성해주세요.
 
     [제출된 코드]:
     {code_context}
@@ -90,7 +88,7 @@ def handle_push_event():
     2. 문제의 출제 의도, 상세 문제 내용, 답안 작성 방식(예: '이 이슈의 댓글로 정답을 남겨주세요')을 명확히 제시하세요.
     """
 
-    quiz_content = call_llm_api(prompt)
+    quiz_content = call_gemini_api(prompt)
     quiz_title = "[Quiz] 파이썬 코드 개념 점검 퀴즈"
 
     for line in quiz_content.strip().split("\n"):
@@ -98,7 +96,6 @@ def handle_push_event():
             quiz_title = line.replace("#", "").strip()
             break
 
-    # Issue 생성 API 호출
     issue_url = f"https://api.github.com/repos/{repo}/issues"
     payload = {
         "title": quiz_title,
@@ -119,7 +116,10 @@ def handle_push_event():
 def handle_comment_event():
     print("📝 Issue 댓글 작성 감지: 답안 채점을 시작합니다.")
 
-    # GitHub에서 전달해 준 이벤트 페이로드 파일 읽기
+    if not os.path.exists(event_path):
+        print("❌ 이벤트 페이로드 파일이 존재하지 않습니다.")
+        return
+
     with open(event_path, "r", encoding="utf-8") as f:
         event_data = json.load(f)
 
@@ -130,7 +130,6 @@ def handle_comment_event():
     issue_body = issue.get("body")
     user_answer = comment.get("body")
 
-    # 퀴즈 이슈가 아니거나 댓글 내용이 없으면 종료
     labels = [l.get("name") for l in issue.get("labels", [])]
     if "quiz" not in labels and "[Quiz]" not in issue.get("title", ""):
         print("ℹ️ 퀴즈 관련 Issue가 아니므로 채점을 건너뜁니다.")
@@ -149,9 +148,8 @@ def handle_comment_event():
     답안이 훌륭하다면 이슈를 닫아도 좋다는 안내 문구도 함께 적어주세요.
     """
 
-    feedback_content = call_llm_api(grading_prompt)
+    feedback_content = call_gemini_api(grading_prompt)
 
-    # 댓글로 채점 결과 전달 (Issue를 자동으로 close 하지 않음)
     comment_url = f"https://api.github.com/repos/{repo}/issues/{issue_number}/comments"
     res = requests.post(comment_url, headers=headers, json={"body": feedback_content})
 

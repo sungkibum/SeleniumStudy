@@ -9,7 +9,7 @@ on:
 
 jobs:
   run-pipeline:
-    # 봇(AI)이 작성한 댓글에는 워크플로우가 실행되지 않도록 무한 루프 방지
+    # 봇(AI) 댓글로 인한 무한 루프 방지
     if: github.event_name == 'push' || (github.event_name == 'issue_comment' && github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
     permissions:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # git diff 실행을 위해 이전 커밋 포함 추출
+          fetch-depth: 2
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Pipeline
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }} # Gemini 사용 시 GEMINI_API_KEY로 변경
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
