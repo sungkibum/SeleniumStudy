@@ -28,7 +28,7 @@ headers = {
 # 2. Gemini API 호출 함수 (Gemini 1.5 Flash 무료 모델)
 # ==========================================
 def call_gemini_api(prompt: str) -> str:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     req_headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
