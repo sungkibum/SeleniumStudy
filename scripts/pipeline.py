@@ -8,14 +8,14 @@ import requests
 # ==========================================
 # 1. 환경 변수 및 설정 로드
 # ==========================================
-api_key = os.environ.get("GEMINI_API_KEY")
+api_key = os.environ.get("GROQ_API_KEY")
 github_token = os.environ.get("GITHUB_TOKEN")
 repo = os.environ.get("GITHUB_REPOSITORY")
 event_name = os.environ.get("GITHUB_EVENT_NAME")
 event_path = os.environ.get("GITHUB_EVENT_PATH")
 
 if not api_key or not github_token or not repo:
-    print("❌ 오류: 필수 환경 변수(GEMINI_API_KEY, GITHUB_TOKEN, GITHUB_REPOSITORY)가 없습니다.")
+    print("❌ 오류: 필수 환경 변수(GROQ_API_KEY, GITHUB_TOKEN, GITHUB_REPOSITORY)가 없습니다.")
     sys.exit(1)
 
 headers = {
@@ -25,13 +25,18 @@ headers = {
 
 
 # ==========================================
-# 2. Gemini API 호출 함수 (Gemini 1.5 Flash 무료 모델)
+# 2. Groq API 호출 함수 (Llama 3.3 70B 모델)
 # ==========================================
-def call_gemini_api(prompt: str) -> str:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
-    req_headers = {"Content-Type": "application/json"}
+def call_llm_api(prompt: str) -> str:
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    req_headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
     payload = {
-        "contents": [{"parts": [{"text": prompt}]}]
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.7
     }
     
     res = requests.post(url, headers=req_headers, json=payload)
@@ -42,13 +47,9 @@ def call_gemini_api(prompt: str) -> str:
         res = requests.post(url, headers=req_headers, json=payload)
 
     if res.status_code != 200:
-        raise Exception(f"Gemini API 호출 실패 ({res.status_code}): {res.text}")
+        raise Exception(f"Groq API 호출 실패 ({res.status_code}): {res.text}")
     
-    data = res.json()
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError):
-        raise Exception(f"Gemini 응답 파싱 실패: {data}")
+    return res.json()["choices"][0]["message"]["content"]
 
 
 # ==========================================
@@ -88,7 +89,7 @@ def handle_push_event():
     2. 문제의 출제 의도, 상세 문제 내용, 답안 작성 방식(예: '이 이슈의 댓글로 정답을 남겨주세요')을 명확히 제시하세요.
     """
 
-    quiz_content = call_gemini_api(prompt)
+    quiz_content = call_llm_api(prompt)
     quiz_title = "[Quiz] 파이썬 코드 개념 점검 퀴즈"
 
     for line in quiz_content.strip().split("\n"):
@@ -148,7 +149,7 @@ def handle_comment_event():
     답안이 훌륭하다면 이슈를 닫아도 좋다는 안내 문구도 함께 적어주세요.
     """
 
-    feedback_content = call_gemini_api(grading_prompt)
+    feedback_content = call_llm_api(grading_prompt)
 
     comment_url = f"https://api.github.com/repos/{repo}/issues/{issue_number}/comments"
     res = requests.post(comment_url, headers=headers, json={"body": feedback_content})
