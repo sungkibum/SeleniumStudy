@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '**.py'
+      - '!scripts/pipeline.py'   # 👈 단, scripts/pipeline.py 파일은 감지 대상에서 제외 (!)
   issue_comment:
     types: [created]
 
