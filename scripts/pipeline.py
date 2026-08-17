@@ -34,7 +34,7 @@ def call_llm_api(prompt: str) -> str:
         "Content-Type": "application/json"
     }
     payload = {
-    "model": "llama-3.1-8b-instant",  # 또는 "llama-3.1-70b-versatile"
+    "model": "llama-3.3-70b-versatile",  # ⭕ 권장: 최신 Llama 3.3 70B 모델
     "messages": [{"role": "user", "content": prompt}],
     "temperature": 0.7
 }
