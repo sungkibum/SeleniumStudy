@@ -34,7 +34,7 @@ def call_llm_api(prompt: str) -> str:
         "Content-Type": "application/json"
     }
     payload = {
-    "model": "llama3-70b-8192",  # 또는 "llama-3.1-70b-versatile"
+    "model": "llama-3.1-8b-instant",  # 또는 "llama-3.1-70b-versatile"
     "messages": [{"role": "user", "content": prompt}],
     "temperature": 0.7
 }
