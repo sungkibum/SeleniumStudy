@@ -34,10 +34,10 @@ def call_llm_api(prompt: str) -> str:
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.7
-    }
+    "model": "llama-3.3-70b-specdec",  # ⭕ Groq Llama 3.3 70B 최신 모델명
+    "messages": [{"role": "user", "content": prompt}],
+    "temperature": 0.7
+}
     
     res = requests.post(url, headers=req_headers, json=payload)
     
