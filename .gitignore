@@ -6,3 +6,5 @@ __pycache__/
 # AI Configuration
 .continue/config.json
 .vscode/
+report.html
+assets/
