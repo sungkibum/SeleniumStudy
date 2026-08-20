@@ -15,4 +15,4 @@ def test_SecondGreetCreditCard():
 
 
 def test_crossBrowser(crossBrowser):
-  print(crossBrowser)
+  print(crossBrowser[1])
