@@ -3,7 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from PythonSelFramework.utilities.BaseClass import BaseClass
+
+from utilities.BaseClass import BaseClass
 
 
 #@pytest.mark.usefixtures("setup")
