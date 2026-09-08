@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
 from pageObjects import HomePage
+from pageObjects.CheckoutPage import CheckOutPage
 from pageObjects.HomePage import HomePage
 from utilities.BaseClass import BaseClass
 
@@ -15,18 +16,19 @@ class TestOne(BaseClass):
         homePage = HomePage(self.driver)
         homePage.shopItems().click()
 
-        cards = self.driver.find_elements(By.CSS_SELECTOR, ".card-title a")
+        checkOutPage = CheckOutPage(self.driver)
+        cards = checkOutPage.getCardTitles()
         i = -1
         for card in cards:
             i = i + 1
             cardText = card.text
             print(cardText)
             if cardText == "Blackberry":
-                self.driver.find_elements(By.CSS_SELECTOR, ".card-footer button")[i].click()
+                checkOutPage.getCardFooter()[i].click()
 
         self.driver.find_element(By.CSS_SELECTOR, "a[class*='btn-primary']").click()
 
-        self.driver.find_element(By.XPATH, "//button[@class='btn btn-success']").click()
+        checkOutPage.checkOutItems().click()
         self.driver.find_element(By.ID, "country").send_keys("ind")
 
         WebDriverWait(self.driver, 10).until(
