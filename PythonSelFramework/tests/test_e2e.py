@@ -27,16 +27,14 @@ class TestOne(BaseClass):
 
         self.driver.find_element(By.CSS_SELECTOR, "a[class*='btn-primary']").click()
 
-        checkOutPage.checkOutItems().click()
+        confirmPage = checkOutPage.checkOutItems()
         self.driver.find_element(By.ID, "country").send_keys("ind")
 
         WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.LINK_TEXT, "India")))
         self.driver.find_element(By.LINK_TEXT, "India").click()
-
         self.driver.find_element(By.XPATH, "//div[@class='checkbox checkbox-primary']").click()
         self.driver.find_element(By.CSS_SELECTOR, "[type='submit']").click()
-
         textMatch = self.driver.find_element(By.CSS_SELECTOR, "[class*='alert-success']").text
 
         assert ("Success! Thank you!" in textMatch)

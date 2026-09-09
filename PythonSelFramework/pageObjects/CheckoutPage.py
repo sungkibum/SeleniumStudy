@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
 
+from pageObjects.ConfirmPage import ConfirmPage
+
 
 class CheckOutPage:
 
@@ -20,4 +22,6 @@ class CheckOutPage:
         return self.driver.find_elements(*CheckOutPage.cardFooter)
 
     def checkOutItems(self):
-        return self.driver.find_element(*CheckOutPage.checkOut)
+        self.driver.find_element(*CheckOutPage.checkOut).click()
+        confirmPage = ConfirmPage(self.driver)
+        return confirmPage
