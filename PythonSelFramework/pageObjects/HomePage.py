@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 
-from PythonTesting.demoBrowser import driver
 from pageObjects.CheckoutPage import CheckOutPage
 
 
@@ -9,17 +9,18 @@ class HomePage:
     def __init__(self, driver):
         self.driver = driver
 
-
     shop = (By.CSS_SELECTOR, "a[href*='shop']")
     name = (By.CSS_SELECTOR, "[name='name']")
     email = (By.NAME, "email")
     exampleCheck1 = (By.ID, "exampleCheck1")
+    genderSelect = (By.ID, "exampleFormControlSelect1")
+    submitButton = (By.XPATH, "//input[@value='Submit']")
+    successAlert = (By.CSS_SELECTOR, "[class*='alert-success']")
 
     def shopItems(self):
         self.driver.find_element(*HomePage.shop).click()
         checkOutPage = CheckOutPage(self.driver)
         return checkOutPage
-        #driver.find_element(By.CSS_SELECTOR, "a[href*='shop']")
 
     def getName(self):
         return self.driver.find_element(*HomePage.name)
@@ -29,3 +30,13 @@ class HomePage:
 
     def getExampleCheck1(self):
         return self.driver.find_element(*HomePage.exampleCheck1)
+
+    def selectGender(self, genderText):
+        sel = Select(self.driver.find_element(*HomePage.genderSelect))
+        sel.select_by_visible_text(genderText)
+
+    def clickSubmit(self):
+        self.driver.find_element(*HomePage.submitButton).click()
+
+    def getSuccessAlertText(self):
+        return self.driver.find_element(*HomePage.successAlert).text
