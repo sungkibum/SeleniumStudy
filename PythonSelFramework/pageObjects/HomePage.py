@@ -13,7 +13,7 @@ class HomePage:
     name = (By.CSS_SELECTOR, "[name='name']")
     email = (By.NAME, "email")
     exampleCheck1 = (By.ID, "exampleCheck1")
-    genderSelect = (By.ID, "exampleFormControlSelect1")
+    gender = (By.ID, "exampleFormControlSelect1")
     submitButton = (By.XPATH, "//input[@value='Submit']")
     successAlert = (By.CSS_SELECTOR, "[class*='alert-success']")
 
@@ -31,9 +31,8 @@ class HomePage:
     def getExampleCheck1(self):
         return self.driver.find_element(*HomePage.exampleCheck1)
 
-    def selectGender(self, genderText):
-        sel = Select(self.driver.find_element(*HomePage.genderSelect))
-        sel.select_by_visible_text(genderText)
+    def getGender(self):
+        return self.driver.find_element(*HomePage.gender)
 
     def clickSubmit(self):
         self.driver.find_element(*HomePage.submitButton).click()
