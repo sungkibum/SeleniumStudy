@@ -1,5 +1,3 @@
-from selenium.webdriver.support.select import Select
-
 from utilities.BaseClass import BaseClass
 from pageObjects.HomePage import HomePage
 
@@ -11,8 +9,7 @@ class TestHomePage(BaseClass):
         homePage.getName().send_keys("Rahul")
         homePage.getEmail().send_keys("shetty")
         homePage.getExampleCheck1().click()
-        sel = Select(homePage.getGender())
-        sel.select_by_visible_text("Male")
+        self.selectOptionByText(homePage.getGender(), "Male")
         homePage.clickSubmit()
 
         alertText = homePage.getSuccessAlertText()
