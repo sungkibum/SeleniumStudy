@@ -1,6 +1,7 @@
 from selenium import webdriver
 
 import pytest
+driver = None
 
 def pytest_addoption(parser):
   parser.addoption(
@@ -10,6 +11,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="class")
 def setup(request):
+  global driver
   browser_name = request.config.getoption("browser_name")
   if browser_name == "chrome":
     driver = webdriver.Chrome()
@@ -23,3 +25,21 @@ def setup(request):
   request.cls.driver = driver
   yield
   driver.close()
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item):
+    pytest_html = item.config.pluginmanager.getplugin("html")
+    outcome = yield
+    report = outcome.get_result()
+    extras = getattr(report, "extras", [])          # extra → extras
+
+    if report.when in ("call", "setup"):
+        xfail = hasattr(report, "wasxfail")
+        if (report.skipped and xfail) or (report.failed and not xfail):
+            if driver is not None:                   # driver가 있을 때만
+                screenshot = driver.get_screenshot_as_base64()
+                extras.append(pytest_html.extras.png(screenshot, "Screenshot"))
+        report.extras = extras
+
+def _capture_screenshot(name):
+  driver.get_screenshot_as_file(name)
